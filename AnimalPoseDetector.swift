@@ -5,7 +5,6 @@
 //  Created by Theodore Utomo on 2/16/26.
 //
 
-import AVFoundation
 import Vision
 import UIKit
 
@@ -26,7 +25,7 @@ extension UIImage {
 }
 
 @available(iOS 17.0, *)
-class AnimalPoseDetector: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, ObservableObject {
+class AnimalPoseDetector: NSObject, ObservableObject {
     @Published var animalBodyParts = [VNAnimalBodyPoseObservation.JointName: VNRecognizedPoint]()
     
     func processImage(_ image: UIImage) {
