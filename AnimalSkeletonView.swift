@@ -10,8 +10,7 @@ import Vision
 
 @available(iOS 17.0, *)
 struct AnimalSkeletonView: View {
-    // Get the animal joint locations.
-    @StateObject var animalJoint = AnimalPoseDetector()
+    @ObservedObject var animalJoint: AnimalPoseDetector
     var size: CGSize
     var body: some View {
         ZStack {
