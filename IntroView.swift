@@ -11,16 +11,18 @@ import SwiftUI
 struct IntroView: View {
     var onContinue: () -> Void
 
+    private var introVideoURL: URL? {
+        Bundle.main.url(forResource: "FrankieTree", withExtension: "MOV")
+    }
+
     var body: some View {
         VStack(spacing: 24) {
             Spacer()
 
-            // Title
             Text("Welcome to Tail Translate")
-                .font(.largeTitle)
+                .font(.title)
                 .fontWeight(.bold)
 
-            // Description
             VStack(alignment: .leading, spacing: 12) {
                 Text("See how animals communicate with their bodies.")
                     .font(.body)
@@ -32,6 +34,12 @@ struct IntroView: View {
             }
             .padding(.horizontal)
 
+            if let url = introVideoURL {
+                SkeletonVideoPlayer(url: url)
+                    .frame(height: 220)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 24)
+            }
 
             Spacer()
 
