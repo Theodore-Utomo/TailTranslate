@@ -10,13 +10,16 @@ import SwiftUI
 @available(iOS 17.0, *)
 struct ContentView: View {
     @StateObject private var animalJoint = AnimalPoseDetector()
-    @State private var hasCompletedIntro = false
+    @State private var showMain = false
 
     var body: some View {
-        if hasCompletedIntro {
-            MainContentView(animalJoint: animalJoint)
-        } else {
-            IntroView(onContinue: { hasCompletedIntro = true })
+        NavigationStack {
+            IntroView(onContinue: { showMain = true })
+                .navigationDestination(isPresented: $showMain) {
+                    MainContentView(animalJoint: animalJoint)
+                        .toolbar(.hidden, for: .navigationBar)
+                }
+                .toolbar(.hidden, for: .navigationBar)
         }
     }
 }

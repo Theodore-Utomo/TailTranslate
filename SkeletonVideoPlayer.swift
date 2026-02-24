@@ -14,6 +14,9 @@ import UIKit
 @available(iOS 17.0, *)
 struct SkeletonVideoPlayer: View {
     let url: URL
+    let isSkeletonOn: Bool
+    // Callback for when the video playback starts
+    let onPlaybackStarted: (() -> Void)?
 
     @StateObject private var poseDetector = AnimalPoseDetector()
     @State private var player: AVPlayer?
@@ -34,9 +37,11 @@ struct SkeletonVideoPlayer: View {
                     Color.gray.opacity(0.3)
                         .frame(width: viewSize.width, height: viewSize.height)
                 }
-                AnimalSkeletonView(animalJoint: poseDetector, size: contentSize)
-                    .frame(width: contentSize.width, height: contentSize.height)
-                    .allowsHitTesting(false)
+                if isSkeletonOn {
+                    AnimalSkeletonView(animalJoint: poseDetector, size: contentSize)
+                        .frame(width: contentSize.width, height: contentSize.height)
+                        .allowsHitTesting(false)
+                }
             }
         }
         .task { await runLiveSkeleton() }
@@ -60,8 +65,14 @@ struct SkeletonVideoPlayer: View {
         let context = CIContext()
         let interval: UInt64 = 200_000_000 // 0.2s
 
+        var didReportPlayback = false
         while !Task.isCancelled {
             let time = await MainActor.run { p.currentTime() }
+            let isPlaying = await MainActor.run { p.rate > 0 }
+            if !didReportPlayback, isPlaying {
+                didReportPlayback = true
+                await MainActor.run { onPlaybackStarted?() }
+            }
 
             if videoOutput.hasNewPixelBuffer(forItemTime: time),
                let pixelBuffer = videoOutput.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil) {
