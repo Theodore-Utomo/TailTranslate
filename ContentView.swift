@@ -17,7 +17,6 @@ struct ContentView: View {
             IntroView(onContinue: { showMain = true })
                 .navigationDestination(isPresented: $showMain) {
                     MainContentView(animalJoint: animalJoint)
-                        .toolbar(.hidden, for: .navigationBar)
                 }
                 .toolbar(.hidden, for: .navigationBar)
         }
