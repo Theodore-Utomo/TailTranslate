@@ -12,194 +12,134 @@ import Vision
 struct AnimalSkeletonView: View {
     @ObservedObject var animalJoint: AnimalPoseDetector
     var size: CGSize
+
+    private typealias JointName = VNAnimalBodyPoseObservation.JointName
+
+    private struct Bone {
+        let joints: [JointName]
+        let color: Color
+    }
+
+    private let bones: [Bone] = [
+        // Head (left)
+        Bone(joints: [.nose, .leftEye], color: .orange),
+        Bone(joints: [.leftEye, .leftEarBottom], color: .orange),
+        Bone(joints: [.leftEarBottom, .leftEarMiddle, .leftEarTop], color: .orange),
+        // Head (right)
+        Bone(joints: [.nose, .rightEye], color: .orange),
+        Bone(joints: [.rightEye, .rightEarBottom], color: .orange),
+        Bone(joints: [.rightEarBottom, .rightEarMiddle, .rightEarTop], color: .orange),
+        // Spine
+        Bone(joints: [.nose, .neck], color: .yellow),
+        Bone(joints: [.neck, .tailBottom], color: .green),
+        // Front legs (left)
+        Bone(joints: [.neck, .leftFrontElbow], color: .purple),
+        Bone(joints: [.leftFrontElbow, .leftFrontKnee, .leftFrontPaw], color: .purple),
+        // Front legs (right)
+        Bone(joints: [.neck, .rightFrontElbow], color: .purple),
+        Bone(joints: [.rightFrontElbow, .rightFrontKnee, .rightFrontPaw], color: .purple),
+        // Back legs (left)
+        Bone(joints: [.tailBottom, .leftBackElbow], color: .blue),
+        Bone(joints: [.leftBackElbow, .leftBackKnee, .leftBackPaw], color: .blue),
+        // Back legs (right)
+        Bone(joints: [.tailBottom, .rightBackElbow], color: .blue),
+        Bone(joints: [.rightBackElbow, .rightBackKnee, .rightBackPaw], color: .blue),
+        // Tail
+        Bone(joints: [.tailBottom, .tailMiddle, .tailTop], color: .orange),
+    ]
+
     var body: some View {
         ZStack {
             if !animalJoint.animalBodyParts.isEmpty {
-                drawSkeleton()
+                drawBones()
+                JointDotsView(parts: animalJoint.animalBodyParts, size: size)
             }
         }
     }
-    
+
     @ViewBuilder
-    func drawSkeleton() -> some View {
-        Group {
-            ZStack {
-                ZStack {
-                    // left head
-                    if let nose = animalJoint.animalBodyParts[.nose] {
-                        if let leftEye = animalJoint.animalBodyParts[.leftEye] {
-                            Line(points: [nose.location, leftEye.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.orange)
-                        }
-                    }
-                    if let leftEye = animalJoint.animalBodyParts[.leftEye] {
-                        if let leftEarBottom = animalJoint.animalBodyParts[.leftEarBottom] {
-                            Line(points: [leftEye.location, leftEarBottom.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.orange)
-                        }
-                    }
-                    if let leftEarBottom = animalJoint.animalBodyParts[.leftEarBottom] {
-                        if let leftEarMiddle = animalJoint.animalBodyParts[.leftEarMiddle] {
-                            if let leftEarTop = animalJoint.animalBodyParts[.leftEarTop] {
-                                Line(points: [leftEarBottom.location, leftEarMiddle.location,
-                                              leftEarTop.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.orange)
-                            }
-                        }
-                    }
-                    // right head
-                    if let nose = animalJoint.animalBodyParts[.nose] {
-                        if let rightEye = animalJoint.animalBodyParts[.rightEye] {
-                            Line(points: [nose.location, rightEye.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.orange)
-                        }
-                    }
-                    if let rightEye = animalJoint.animalBodyParts[.rightEye] {
-                        if let rightEarBottom = animalJoint.animalBodyParts[.rightEarBottom] {
-                            Line(points: [rightEye.location, rightEarBottom.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.orange)
-                        }
-                    }
-                    if let rightEarBottom = animalJoint.animalBodyParts[.rightEarBottom] {
-                        if let rightEarMiddle = animalJoint.animalBodyParts[.rightEarMiddle] {
-                            if let rightEarTop = animalJoint.animalBodyParts[.rightEarTop] {
-                                Line(points: [rightEarBottom.location, rightEarMiddle.location,
-                                              rightEarTop.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.orange)
-                            }
-                        }
-                    }
-                    // trunk - Draw a line from the nose to the neck.
-                    if let nose = animalJoint.animalBodyParts[.nose] {
-                        if let neck = animalJoint.animalBodyParts[.neck] {
-                            Line(points: [nose.location, neck.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.yellow)
-                        }
-                    }
-                    // tail - Draw a line from the neck to the bottom tail.
-                    if let neck = animalJoint.animalBodyParts[.neck] {
-                        if let tailBottom = animalJoint.animalBodyParts[.tailBottom] {
-                            Line(points: [neck.location,
-                                          tailBottom.location], size: size)
-                            .stroke(lineWidth: 5.0)
-                            .fill(Color.green)
-                        }
-                    }
-                }
-                ZStack {
-                    // left forelegs
-                    if let neck = animalJoint.animalBodyParts[.neck] {
-                        if let leftFrontElbow = animalJoint.animalBodyParts[.leftFrontElbow] {
-                            Line(points: [neck.location, leftFrontElbow.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.purple)
-                        }
-                    }
-                    if let leftFrontElbow = animalJoint.animalBodyParts[.leftFrontElbow] {
-                        if let leftFrontKnee = animalJoint.animalBodyParts[.leftFrontKnee] {
-                            if let leftFrontPaw = animalJoint.animalBodyParts[.leftFrontPaw] {
-                                Line(points: [leftFrontElbow.location, leftFrontKnee.location, leftFrontPaw.location], size: size)
-                                    .stroke(lineWidth: 5.0)
-                                    .fill(Color.purple)
-                            }
-                        }
-                    }
-                    // right forelegs
-                    if let neck = animalJoint.animalBodyParts[.neck] {
-                        if let rightFrontElbow = animalJoint.animalBodyParts[.rightFrontElbow] {
-                            Line(points: [neck.location, rightFrontElbow.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.purple)
-                        }
-                    }
-                    if let rightFrontElbow = animalJoint.animalBodyParts[.rightFrontElbow] {
-                        if let rightFrontKnee = animalJoint.animalBodyParts[.rightFrontKnee] {
-                            if let rightFrontPaw = animalJoint.animalBodyParts[.rightFrontPaw] {
-                                Line(points: [rightFrontElbow.location, rightFrontKnee.location, rightFrontPaw.location], size: size)
-                                    .stroke(lineWidth: 5.0)
-                                    .fill(Color.purple)
-                            }
-                        }
-                    }
-                    // left hindlegs
-                    if let tailBottom = animalJoint.animalBodyParts[.tailBottom] {
-                        if let leftBackElbow = animalJoint.animalBodyParts[.leftBackElbow] {
-                            Line(points: [tailBottom.location, leftBackElbow.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.blue)
-                        }
-                    }
-                    if let leftBackElbow = animalJoint.animalBodyParts[.leftBackElbow] {
-                        if let leftBackKnee = animalJoint.animalBodyParts[.leftBackKnee] {
-                            if let leftBackPaw = animalJoint.animalBodyParts[.leftBackPaw] {
-                                Line(points: [leftBackElbow.location, leftBackKnee.location, leftBackPaw.location], size: size)
-                                    .stroke(lineWidth: 5.0)
-                                    .fill(Color.blue)
-                            }
-                        }
-                    }
-                    // right hindlegs
-                    if let tailBottom = animalJoint.animalBodyParts[.tailBottom] {
-                        if let rightBackElbow = animalJoint.animalBodyParts[.rightBackElbow] {
-                            Line(points: [tailBottom.location, rightBackElbow.location], size: size)
-                                .stroke(lineWidth: 5.0)
-                                .fill(Color.blue)
-                        }
-                    }
-                    if let rightBackElbow = animalJoint.animalBodyParts[.rightBackElbow] {
-                        if let rightBackKnee = animalJoint.animalBodyParts[.rightBackKnee] {
-                            if let rightBackPaw = animalJoint.animalBodyParts[.rightBackPaw] {
-                                Line(points: [rightBackElbow.location, rightBackKnee.location, rightBackPaw.location], size: size)
-                                    .stroke(lineWidth: 5.0)
-                                    .fill(Color.blue)
-                            }
-                        }
-                    }
-                }
-                ZStack {
-                    // Connect the tail joints.
-                    if let tailBottom = animalJoint.animalBodyParts[.tailBottom] {
-                        if let tailMiddle = animalJoint.animalBodyParts[.tailMiddle] {
-                            if let tailTop = animalJoint.animalBodyParts[.tailTop] {
-                                Line(points: [tailBottom.location, tailMiddle.location, tailTop.location], size: size)
-                                    .stroke(lineWidth: 5.0)
-                                    .fill(Color.orange)
-                            }
-                        }
-                    }
+    private func drawBones() -> some View {
+        let parts = animalJoint.animalBodyParts
+        ZStack {
+            ForEach(Array(bones.enumerated()), id: \.offset) { _, bone in
+                let points = bone.joints.compactMap { parts[$0]?.location }
+                if points.count == bone.joints.count {
+                    BoneLine(points: points, size: size)
+                        .stroke(lineWidth: 5.0)
+                        .fill(bone.color)
                 }
             }
         }
-    }
-    
-    func drawBone(from start: VNRecognizedPoint, to end: VNRecognizedPoint, color: Color) -> some View {
-        Line(points: [start.location, end.location], size: size)
-            .stroke(lineWidth: 5.0)
-            .fill(color)
     }
 }
-// Create a transform that converts the pose's normalized point.
-struct Line: Shape {
+
+@available(iOS 17.0, *)
+private struct JointDotsView: View {
+    let parts: [VNAnimalBodyPoseObservation.JointName: VNRecognizedPoint]
+    let size: CGSize
+
+    var body: some View {
+        Canvas { context, _ in
+            let transform = visionTransform(for: size)
+            for (jointName, point) in parts {
+                guard point.confidence > 0 else { continue }
+                let pos = point.location.applying(transform)
+                let dotSize: CGFloat = 8
+                let rect = CGRect(
+                    x: pos.x - dotSize / 2,
+                    y: pos.y - dotSize / 2,
+                    width: dotSize,
+                    height: dotSize
+                )
+                let color = Self.color(for: jointName)
+                context.fill(Path(ellipseIn: rect), with: .color(color))
+                context.stroke(Path(ellipseIn: rect), with: .color(.white), lineWidth: 1.5)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .allowsHitTesting(false)
+    }
+
+    private static func color(for joint: VNAnimalBodyPoseObservation.JointName) -> Color {
+        switch joint {
+        case .nose, .leftEye, .rightEye,
+             .leftEarTop, .leftEarMiddle, .leftEarBottom,
+             .rightEarTop, .rightEarMiddle, .rightEarBottom,
+             .tailBottom, .tailMiddle, .tailTop:
+            return .orange
+        case .neck:
+            return .yellow
+        case .leftFrontElbow, .leftFrontKnee, .leftFrontPaw,
+             .rightFrontElbow, .rightFrontKnee, .rightFrontPaw:
+            return .purple
+        case .leftBackElbow, .leftBackKnee, .leftBackPaw,
+             .rightBackElbow, .rightBackKnee, .rightBackPaw:
+            return .blue
+        default:
+            return .green
+        }
+    }
+}
+
+func visionTransform(for size: CGSize) -> CGAffineTransform {
+    CGAffineTransform.identity
+        .translatedBy(x: 0.0, y: -1.0)
+        .concatenating(.identity.scaledBy(x: 1.0, y: -1.0))
+        .concatenating(.identity.scaledBy(x: size.width, y: size.height))
+}
+
+struct BoneLine: Shape {
     var points: [CGPoint]
     var size: CGSize
+
     func path(in rect: CGRect) -> Path {
-        let pointTransform: CGAffineTransform =
-            .identity
-            .translatedBy(x: 0.0, y: -1.0)
-            .concatenating(.identity.scaledBy(x: 1.0, y: -1.0))
-            .concatenating(.identity.scaledBy(x: size.width, y: size.height))
+        let transform = visionTransform(for: size)
         var path = Path()
-        path.move(to: points[0])
-        for point in points {
-            path.addLine(to: point)
+        guard let first = points.first else { return path }
+        path.move(to: first.applying(transform))
+        for point in points.dropFirst() {
+            path.addLine(to: point.applying(transform))
         }
-        return path.applying(pointTransform)
+        return path
     }
 }

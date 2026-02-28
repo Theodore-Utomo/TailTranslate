@@ -22,11 +22,11 @@ struct IntroView: View {
     }
 
     private enum IntroStep: Int, CaseIterable {
-        case promptPlay           // "Tap the video to start"
-        case videoPlaying         // "This is my cat Frankie..."
-        case promptToggle         // "Want to see a visual outline... Click the toggle"
-        case afterToggle          // "Animal body language is fascinating..."
-        case readyToStart         // "Let's get started..." + Get Started button
+        case promptPlay
+        case videoPlaying
+        case promptToggle
+        case afterToggle
+        case readyToStart        
     }
 
     @ViewBuilder
@@ -64,7 +64,7 @@ struct IntroView: View {
             .animation(.easeInOut(duration: 0.4), value: step)
 
             if let url = introVideoURL {
-                SkeletonVideoPlayer(url: url, isSkeletonOn: isSkeletonOn) {
+                SkeletonVideoPlayer(url: url, isSkeletonOn: isSkeletonOn, isMuted: true) {
                     onVideoPlaybackStarted()
                 }
                 .frame(height: 220)
@@ -110,7 +110,7 @@ struct IntroView: View {
 
     private func scheduleTogglePrompt() {
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 4_500_000_000) // ~4.5 seconds
+            try? await Task.sleep(nanoseconds: 4_500_000_000) // 4.5 seconds
             guard step == .videoPlaying else { return }
             withAnimation { step = .promptToggle }
         }

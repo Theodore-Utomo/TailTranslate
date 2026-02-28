@@ -10,13 +10,12 @@ import AVKit
 import AVFoundation
 import UIKit
 
-/// A reusable view that plays a video and overlays an animal skeleton that tracks the animal in real time
 @available(iOS 17.0, *)
 struct SkeletonVideoPlayer: View {
     let url: URL
     let isSkeletonOn: Bool
-    // Callback for when the video playback starts
-    let onPlaybackStarted: (() -> Void)?
+    var isMuted: Bool = false
+    var onPlaybackStarted: (() -> Void)?
 
     @StateObject private var poseDetector = AnimalPoseDetector()
     @State private var player: AVPlayer?
@@ -60,10 +59,11 @@ struct SkeletonVideoPlayer: View {
         let asset = AVAsset(url: url)
         let orientation = await videoOrientation(for: asset)
 
+        p.isMuted = isMuted
         await MainActor.run { player = p }
 
         let context = CIContext()
-        let interval: UInt64 = 200_000_000 // 0.2s
+        let interval: UInt64 = 200_000_000
 
         var didReportPlayback = false
         while !Task.isCancelled {
