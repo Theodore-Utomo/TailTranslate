@@ -12,8 +12,6 @@ import UIKit
 struct IntroView: View {
     @State private var isSkeletonOn: Bool = false
     @State private var step: IntroStep = .promptPlay
-    
-    let deviceWidth = UIScreen.main.bounds.width
 
     var onContinue: () -> Void
 
@@ -26,7 +24,7 @@ struct IntroView: View {
         case videoPlaying
         case promptToggle
         case afterToggle
-        case readyToStart        
+        case readyToStart
     }
 
     @ViewBuilder
@@ -48,33 +46,57 @@ struct IntroView: View {
     }
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        ZStack {
+            Color(.systemGroupedBackground)
+                .ignoresSafeArea()
 
-            ZStack {
-                stepText
-                    .font(.title3)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                    .transition(.push(from: .trailing))
-                    .id(step)
-            }
-            .frame(height: 80, alignment: .center)
-            .clipped()
-            .animation(.easeInOut(duration: 0.4), value: step)
+            VStack(spacing: 0) {
+                Spacer()
 
-            if let url = introVideoURL {
-                SkeletonVideoPlayer(url: url, isSkeletonOn: isSkeletonOn, isMuted: true) {
-                    onVideoPlaybackStarted()
+                Text("TailTranslate")
+                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    .foregroundStyle(.indigo)
+                    .padding(.bottom, 4)
+
+                Text("Understand what your cat is saying")
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 20)
+
+                ZStack {
+                    stepText
+                        .font(.system(.title3, design: .rounded))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                        .transition(.push(from: .trailing))
+                        .id(step)
                 }
-                .frame(height: 220)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal, 24)
-            }
+                .frame(height: 90, alignment: .center)
+                .clipped()
+                .animation(.easeInOut(duration: 0.4), value: step)
 
-            Toggle("Toggle Animal Skeleton Overlay", isOn: $isSkeletonOn)
-                .padding()
-                .opacity(step.rawValue >= IntroStep.promptToggle.rawValue ? 1 : 0.6)
+                if let url = introVideoURL {
+                    SkeletonVideoPlayer(url: url, isSkeletonOn: isSkeletonOn, isMuted: true) {
+                        onVideoPlaybackStarted()
+                    }
+                    .frame(height: 240)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
+                    .padding(.horizontal, 24)
+                }
+
+                HStack {
+                    Label("Skeleton Overlay", systemImage: "figure.cat.circle")
+                        .font(.system(.subheadline, design: .rounded, weight: .medium))
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Toggle("", isOn: $isSkeletonOn)
+                        .labelsHidden()
+                        .tint(.indigo)
+                }
+                .padding(.horizontal, 28)
+                .padding(.vertical, 12)
+                .opacity(step.rawValue >= IntroStep.promptToggle.rawValue ? 1 : 0.35)
                 .disabled(step.rawValue < IntroStep.promptToggle.rawValue)
                 .onChange(of: isSkeletonOn) { _, newValue in
                     if step == .promptToggle, newValue {
@@ -83,22 +105,30 @@ struct IntroView: View {
                     }
                 }
 
-            Spacer()
+                Spacer()
 
-            Group {
-                if step == .readyToStart {
-                    Button(action: onContinue) {
-                        Label("Get Started", systemImage: "photo.on.rectangle.angled")
-                            .font(.subheadline)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
+                Group {
+                    if step == .readyToStart {
+                        Button(action: onContinue) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "pawprint.fill")
+                                Text("Get Started")
+                            }
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 32)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(.indigo)
+                            )
+                        }
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
                     }
-                    .buttonStyle(.borderedProminent)
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
+                .animation(.easeInOut(duration: 0.35), value: step == .readyToStart)
+                .padding(.bottom, 28)
             }
-            .animation(.easeInOut(duration: 0.35), value: step == .readyToStart)
-            .padding(.bottom, 12)
         }
     }
 
@@ -110,7 +140,7 @@ struct IntroView: View {
 
     private func scheduleTogglePrompt() {
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 4_500_000_000) // 4.5 seconds
+            try? await Task.sleep(nanoseconds: 4_500_000_000)
             guard step == .videoPlaying else { return }
             withAnimation { step = .promptToggle }
         }
@@ -118,7 +148,7 @@ struct IntroView: View {
 
     private func scheduleReadyToStart() {
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 4_000_000_000) // 4 seconds
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
             guard step == .afterToggle else { return }
             withAnimation { step = .readyToStart }
         }

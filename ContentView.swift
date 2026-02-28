@@ -10,7 +10,7 @@ import SwiftUI
 @available(iOS 17.0, *)
 struct ContentView: View {
     @StateObject private var animalJoint = AnimalPoseDetector()
-    @State private var showMain = true
+    @State private var showMain = false
 
     var body: some View {
         NavigationStack {
